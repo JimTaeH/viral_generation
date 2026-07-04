@@ -20,7 +20,7 @@ class LLMFactory:
         provider: str, 
         model_name: str, 
         temperature: float = 0.1, 
-        max_tokens: int = 2048
+        max_tokens: int = 4096
     ) -> BaseChatModel:
         """
         Creates and returns a LangChain BaseChatModel instance.

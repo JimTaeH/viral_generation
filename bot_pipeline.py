@@ -7,8 +7,9 @@ import sys
 from langchain_core.prompts import ChatPromptTemplate
 # นำเข้า LLMFactory จากไฟล์ที่มีอยู่ในโปรเจกต์
 from core.llm_factory import LLMFactory
-from core.script_tools import ScriptGeneratorTool, VoiceOptimizerTool
+from core.script_tools import ScriptGeneratorTool, VoiceOptimizerTool, NewsSummarizerTool
 from core.video_assembler import VideoAssemblerTool
+from pythainlp.tokenize import sent_tokenize
 
 # ตั้งค่า encoding ของ stdout/stderr ให้รองรับ UTF-8 เพื่อป้องกันข้อผิดพลาดเวลาแสดงผลอีโมจิใน Windows
 sys.stdout.reconfigure(encoding='utf-8')
@@ -57,50 +58,6 @@ def scrape_news(url):
         return None
 
 # ==========================================
-# 2. ฟังก์ชันให้ AI สรุปและเขียนสคริปต์ (ใช้ LLMFactory)
-# ==========================================
-def generate_script(news_text, provider="google", model_name="gemini-1.5-flash"):
-    print(f"🤖 [2/3] เจ้าเหมียวไซบอร์กกำลังเขียนสคริปต์ด้วย {provider} ({model_name})...")
-    
-    # 2.1 สร้าง LLM อินสแตนซ์ผ่าน LLMFactory
-    try:
-        llm = LLMFactory.create_llm(
-            provider=provider, 
-            model_name=model_name,
-            temperature=0.1
-        )
-    except Exception as e:
-        print(f"เกิดข้อผิดพลาดในการโหลด LLM: {e}")
-        return None
-
-    # 2.2 สร้าง Prompt Template
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", "คุณคือ 'เจ้าเหมียวไซบอร์ก' ครีเอเตอร์สายเทคโนโลยีบน TikTok คาแรคเตอร์: ฉลาด กวนนิดๆ เรียกคนดูว่า 'นุด' (มนุษย์)"),
-        ("user", """จงอ่านข่าวเทคโนโลยีต่อไปนี้ และสรุปเป็นสคริปต์วิดีโอ TikTok ความยาว 45 วินาที
-        
-        เนื้อหาข่าว: {news_text}
-        
-        กฎสำคัญ:
-        1. เขียนเฉพาะ "คำพูด" ที่จะให้ออกเสียงเท่านั้น ห้ามใส่วงเล็บอธิบายภาพ ห้ามใส่สัญลักษณ์พิเศษ ห้ามใส่ [ดนตรี] หรือ [เอฟเฟกต์]
-        2. เปิดคลิปด้วย Hook ที่ดึงดูดใจ
-        3. เล่าเนื้อหาให้กระชับ เข้าใจง่าย
-        4. ปิดท้ายด้วยการบอกให้กดติดตามช่อง 'เจ้าเหมียวไซบอร์ก'
-        """)
-    ])
-
-    # 2.3 รัน Chain ด้วย LCEL Syntax
-    try:
-        chain = prompt | llm
-        response = chain.invoke({"news_text": news_text})
-        
-        # ทำความสะอาดข้อความ ลบพวกเครื่องหมาย *, # 
-        clean_script = re.sub(r'[*#]', '', response.content)
-        return clean_script
-    except Exception as e:
-        print(f"เกิดข้อผิดพลาดในการรัน LangChain: {e}")
-        return None
-
-# ==========================================
 # 3. ฟังก์ชันแปลงสคริปต์เป็นเสียงพากย์ (Edge TTS)
 # ==========================================
 async def generate_voice(script_text, output_filename="output_voice.mp3"):
@@ -109,7 +66,13 @@ async def generate_voice(script_text, output_filename="output_voice.mp3"):
     # เสียง NiwatNeural (ผู้ชาย) หรือ PremwadeeNeural (ผู้หญิง)
     voice = "th-TH-NiwatNeural" 
     
-    communicate = edge_tts.Communicate(script_text, voice)
+    communicate = edge_tts.Communicate(
+        text=script_text, 
+        voice=voice, 
+        rate="+5%", 
+        pitch="+5Hz", 
+        volume="+0%"
+    )
     await communicate.save(output_filename)
     print(f"✅ สำเร็จ! บันทึกไฟล์เสียงไว้ที่: {output_filename}")
 
@@ -117,7 +80,7 @@ async def generate_voice(script_text, output_filename="output_voice.mp3"):
 # Main Execution
 # ==========================================
 async def main():
-    test_url = "https://www.blognone.com/node/151045" 
+    test_url = "https://www.blognone.com/node/151057"
     news_content = scrape_news(test_url)
     if not news_content:
         return
@@ -125,7 +88,14 @@ async def main():
     # 1. เรียกใช้งาน Script Generator Tool
     script_tool = ScriptGeneratorTool(provider="typhoon", model_name="typhoon-v2.5-30b-a3b-instruct")
     voice_tool = VoiceOptimizerTool(provider="typhoon", model_name="typhoon-v2.5-30b-a3b-instruct")
-    script_data = script_tool.generate_plan(news_content)
+    summarizer = NewsSummarizerTool(provider="typhoon", model_name="typhoon-v2.5-30b-a3b-instruct")
+
+    # script_tool = ScriptGeneratorTool(provider="google", model_name="gemini-3.5-flash")
+    # voice_tool = VoiceOptimizerTool(provider="google", model_name="gemini-3.5-flash")
+    # summarizer = NewsSummarizerTool(provider="google", model_name="gemini-3.5-flash")
+    
+    clean_text = summarizer.summarize(news_content)
+    script_data = script_tool.generate_plan(clean_text)
     
     if script_data:
         # แยกบทพูดแบบดิบออกมา
@@ -135,15 +105,19 @@ async def main():
         # --- Step 2: ปรับแต่งสคริปต์บทพูดสำหรับ TTS ---
         optimized_voice = voice_tool.optimize_for_tts(raw_voice)
         print(f"\n[✨ บทพูดที่ปรับแต่งแล้ว (ทับศัพท์ + จัดวรรค)]\n{optimized_voice}")
+        optimized_sentences = sent_tokenize(optimized_voice, engine="crfcut")
+        structured_script = " ".join(optimized_sentences) # รวมกลับเพื่อส่งให้ LLM หรือจะวนลูปจัดการทีละประโยคก็ได้
         
         # แสดงบทภาพสำหรับนำไปใช้งานต่อ
         production_guide = script_tool.get_production_script(script_data)
         print("\n🎬 --- แผนการผลิต (ภาพ + ท่าทาง + เสียง) ---")
         print(production_guide)
+
+        script_tool.save_to_markdown(script_data, "final_script_meowbox.md")
         
         # --- Step 3: ส่งไปสร้างเสียงพากย์จริง ---
         # ตรงนี้ใช้ optimized_voice ส่งเข้า Edge TTS
-        await generate_voice(optimized_voice, "final_voice.mp3")
+        await generate_voice(structured_script, "final_voice.mp3")
 
 if __name__ == "__main__":
     asyncio.run(main())
