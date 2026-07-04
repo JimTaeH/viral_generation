@@ -70,19 +70,29 @@ class ScriptGeneratorTool:
         """ดึงเฉพาะ 'บทพูด' ส่งไปทำ TTS"""
         voice_text = ""
         for scene in structured_script.get("scenes", []):
-            voice_text += f"{scene['voice_script']} "
+            # ใช้ .get() เพื่อป้องกัน KeyError ในกรณีที่ AI พลาดไม่คืนค่านี้มา
+            voice = scene.get('voice_script', '')
+            voice_text += f"{voice} "
         return voice_text.strip()
         
     def get_production_script(self, structured_script: dict) -> str:
         """ดึงข้อมูลแผนการผลิตทั้งหมด (ภาพ + ท่าทาง + เสียง) สำหรับนำไปใช้จริง"""
-        prod_text = f"🎥 โปรเจกต์คลิป: {structured_script.get('video_title')}\n"
+        # ป้องกัน error ระดับ title ด้วย .get()
+        video_title = structured_script.get('video_title', 'Untitled Project')
+        prod_text = f"🎥 โปรเจกต์คลิป: {video_title}\n"
         prod_text += "="*50 + "\n"
         
         for scene in structured_script.get("scenes", []):
-            prod_text += f"🎬 [ฉากที่ {scene['scene_number']}]\n"
-            prod_text += f"👁️ บทภาพ (Visual): {scene['visual_instruction']}\n"
-            prod_text += f"🐈 ท่าทาง (Action): {scene['character_action']}\n"
-            prod_text += f"🗣️ บทพูด (Voice): {scene['voice_script']}\n"
+            # ดึงข้อมูลด้วย .get() ทั้งหมดเพื่อความปลอดภัย
+            scene_num = scene.get('scene_number', '?')
+            visual = scene.get('visual_instruction', 'ไม่ระบุภาพ')
+            action = scene.get('character_action', 'ไม่ระบุท่าทาง')
+            voice = scene.get('voice_script', 'ไม่ระบุบทพูด')
+            
+            prod_text += f"🎬 [ฉากที่ {scene_num}]\n"
+            prod_text += f"👁️ บทภาพ (Visual): {visual}\n"
+            prod_text += f"🐈 ท่าทาง (Action): {action}\n"
+            prod_text += f"🗣️ บทพูด (Voice): {voice}\n"
             prod_text += "-"*50 + "\n"
             
         return prod_text

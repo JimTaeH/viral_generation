@@ -137,8 +137,9 @@ async def main():
         print(f"\n[✨ บทพูดที่ปรับแต่งแล้ว (ทับศัพท์ + จัดวรรค)]\n{optimized_voice}")
         
         # แสดงบทภาพสำหรับนำไปใช้งานต่อ
-        visual_guide = script_tool.get_visual_script(script_data)
-        print(f"\n[🎬 แผนงานบทภาพ]\n{visual_guide}")
+        production_guide = script_tool.get_production_script(script_data)
+        print("\n🎬 --- แผนการผลิต (ภาพ + ท่าทาง + เสียง) ---")
+        print(production_guide)
         
         # --- Step 3: ส่งไปสร้างเสียงพากย์จริง ---
         # ตรงนี้ใช้ optimized_voice ส่งเข้า Edge TTS
