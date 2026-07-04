@@ -7,6 +7,8 @@ import sys
 from langchain_core.prompts import ChatPromptTemplate
 # นำเข้า LLMFactory จากไฟล์ที่มีอยู่ในโปรเจกต์
 from core.llm_factory import LLMFactory
+from core.script_tools import ScriptGeneratorTool, VoiceOptimizerTool
+from core.video_assembler import VideoAssemblerTool
 
 # ตั้งค่า encoding ของ stdout/stderr ให้รองรับ UTF-8 เพื่อป้องกันข้อผิดพลาดเวลาแสดงผลอีโมจิใน Windows
 sys.stdout.reconfigure(encoding='utf-8')
@@ -115,20 +117,32 @@ async def generate_voice(script_text, output_filename="output_voice.mp3"):
 # Main Execution
 # ==========================================
 async def main():
-    test_url = "https://www.thairath.co.th/news/tech/2800000" 
-    
+    test_url = "https://www.blognone.com/node/151045" 
     news_content = scrape_news(test_url)
     if not news_content:
         return
         
-    # สามารถสลับ Provider ตรงนี้ได้เลย เช่น provider="typhoon", model_name="typhoon-v2.5-30b-a3b-instruct"
-    script = generate_script(news_content, provider="typhoon", model_name="typhoon-v2.5-30b-a3b-instruct")
-    if not script:
-        return
-        
-    print(f"\n--- 📝 สคริปต์ที่ได้ ---\n{script}\n---------------------\n")
+    # 1. เรียกใช้งาน Script Generator Tool
+    script_tool = ScriptGeneratorTool(provider="typhoon", model_name="typhoon-v2.5-30b-a3b-instruct")
+    voice_tool = VoiceOptimizerTool(provider="typhoon", model_name="typhoon-v2.5-30b-a3b-instruct")
+    script_data = script_tool.generate_plan(news_content)
     
-    await generate_voice(script)
+    if script_data:
+        # แยกบทพูดแบบดิบออกมา
+        raw_voice = script_tool.get_voice_script(script_data)
+        print(f"\n[📝 บทพูดดิบ]\n{raw_voice}")
+        
+        # --- Step 2: ปรับแต่งสคริปต์บทพูดสำหรับ TTS ---
+        optimized_voice = voice_tool.optimize_for_tts(raw_voice)
+        print(f"\n[✨ บทพูดที่ปรับแต่งแล้ว (ทับศัพท์ + จัดวรรค)]\n{optimized_voice}")
+        
+        # แสดงบทภาพสำหรับนำไปใช้งานต่อ
+        visual_guide = script_tool.get_visual_script(script_data)
+        print(f"\n[🎬 แผนงานบทภาพ]\n{visual_guide}")
+        
+        # --- Step 3: ส่งไปสร้างเสียงพากย์จริง ---
+        # ตรงนี้ใช้ optimized_voice ส่งเข้า Edge TTS
+        await generate_voice(optimized_voice, "final_voice.mp3")
 
 if __name__ == "__main__":
     asyncio.run(main())
