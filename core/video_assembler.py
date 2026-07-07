@@ -1,98 +1,79 @@
 import os
-import whisper
-from moviepy import VideoFileClip, AudioFileClip, TextClip, CompositeVideoClip
-from moviepy.video.fx import Loop
+from moviepy import ImageClip, AudioFileClip, CompositeVideoClip, concatenate_videoclips, TextClip
+from PIL import Image, ImageFilter
 
 class VideoAssemblerTool:
     def __init__(self, font_path="fonts/Prompt-SemiBold.ttf"):
-        """
-        เครื่องมือสำหรับประกอบวิดีโอ (เสียง + ภาพ + ซับไตเติล)
-        :param font_path: พาธของไฟล์ฟอนต์ภาษาไทย (ต้องมีไฟล์ฟอนต์ในเครื่อง)
-        """
         self.font_path = font_path
-        print("🤖 [Tool: VideoAssembler] กำลังโหลด AI Model สำหรับทำซับไตเติล (Whisper)...")
-        # โหลดโมเดล Whisper (ใช้ 'base' หรือ 'small' เพื่อความรวดเร็ว)
-        self.whisper_model = whisper.load_model("base")
+        print("🤖 [Tool: VideoAssembler] เปิดใช้งานระบบตัดต่อแบบไร้ Whisper (รันสด ประหยัดพลังงาน)...")
 
-    def generate_subtitles_data(self, audio_path: str) -> list:
-        """ใช้ Whisper ถอดเสียงเป็นข้อความพร้อม Timestamp (Start/End)"""
-        print(f"🎧 กำลังแกะซับไตเติลจากไฟล์เสียง: {audio_path}")
-        result = self.whisper_model.transcribe(audio_path, language="th")
-        return result['segments']
+    def create_tiktok_frame(self, square_img_path: str, output_path: str, target_size=(1080, 1920)):
+        """ใช้ PIL ขยายภาพทำพื้นหลังเบลอ และแปะภาพจริงไว้ตรงกลาง"""
+        with Image.open(square_img_path) as img:
+            # 1. ทำพื้นหลังแนวตั้ง 1080x1920 แบบเบลอ
+            bg = img.resize((target_size[1], target_size[1]))
+            bg = bg.crop(((target_size[1]-target_size[0])//2, 0, (target_size[1]+target_size[0])//2, target_size[1]))
+            bg = bg.filter(ImageFilter.GaussianBlur(radius=25))
+            bg = bg.point(lambda p: p * 0.7) # ลดความสว่างพื้นหลังลง 30%
+            
+            # 2. เอาภาพจริงมาจัดขนาดให้อยู่ตรงกลางจอ
+            fg_size = 720
+            fg = img.resize((fg_size, fg_size))
+            
+            offset = ((target_size[0] - fg_size) // 2, (target_size[1] - fg_size) // 2 - 100)
+            bg.paste(fg, offset)
+            bg.save(output_path)
 
-    def create_subtitle_clips(self, segments: list, video_size: tuple) -> list:
-        """แปลงข้อมูล Timestamp เป็น TextClip ของ MoviePy"""
-        clips = []
-        video_width, video_height = video_size
-        
-        for segment in segments:
-            start_time = segment['start']
-            end_time = segment['end']
-            text = segment['text'].strip()
+    def assemble_from_scenes(self, scenes_data: list, output_path="final_output.mp4"):
+        """
+        รับค่าข้อมูลแต่ละฉากมาประกอบร่างพร้อมฝังซับไตเติลรายซีนโดยตรง
+        :param scenes_data: list ของ dict เช่น [{"image": "path.jpg", "audio": "path.mp3", "text": "บทพูดตรงนี้"}, ...]
+        """
+        print(f"🎬 [Tool: VideoAssembler] เริ่มขั้นตอนมัดรวมคลิปและฝังซับไตเติลสไตล์ TikTok...")
+        scene_clips = []
+        os.makedirs("temp_process", exist_ok=True)
 
-            # สร้าง Clip ตัวหนังสือ
-            try:
-                txt_clip = TextClip(
-                    text, 
-                    font=self.font_path, 
-                    fontsize=60, 
-                    color='white', 
-                    stroke_color='black', 
-                    stroke_width=2.5,
-                    method='caption',
-                    size=(video_width - 100, None) # เว้นขอบซ้ายขวา
-                )
-                
-                # จัดตำแหน่งให้อยู่ตรงกลางค่อนไปด้านล่าง (ตามสไตล์ TikTok)
-                txt_clip = (txt_clip
-                            .set_position(('center', video_height * 0.65))
-                            .set_start(start_time)
-                            .set_end(end_time))
-                
-                clips.append(txt_clip)
-            except Exception as e:
-                print(f"⚠️ ไม่สามารถสร้าง TextClip ได้: {e}")
-                
-        return clips
+        for idx, scene in enumerate(scenes_data):
+            img_path = scene["image"]
+            audio_path = scene["audio"]
+            sub_text = scene["text"] # ดึงบทพูดต้นฉบับมาใช้โดยตรง ไม่ต้องพึ่ง AI แกะเสียง
+            
+            # 1. จัด Layout ภาพแนวตั้งสำหรับ TikTok
+            tiktok_frame_path = f"temp_process/frame_{idx}.png"
+            self.create_tiktok_frame(img_path, tiktok_frame_path)
+            
+            # 2. โหลดไฟล์เสียงพากย์เพื่อหาความยาวของฉากนั้นๆ
+            audio_clip = AudioFileClip(audio_path)
+            duration = audio_clip.duration
+            
+            # 3. สร้างคลิปภาพนิ่งตามความยาวเสียง
+            video_clip = ImageClip(tiktok_frame_path).set_duration(duration)
+            
+            # 4. สร้างกล่องซับไตเติลฝังเข้าไปในฉากนี้โดยตรง (ให้แสดงยาวตั้งแต่ต้นจนจบฉากย่อยนี้)
+            txt_clip = TextClip(
+                text=sub_text, 
+                font=self.font_path, 
+                fontsize=55, 
+                color='yellow', # ตัวหนังสือสีเหลืองยอดฮิตของ TikTok
+                stroke_color='black', 
+                stroke_width=3.0, 
+                method='caption', 
+                size=(1080 - 160, None)
+            ).set_duration(duration).set_position(('center', 1400)) # จัดวางตำแหน่งใต้ภาพตรงกลางพอดี
+            
+            # 5. มัดรวม ภาพ + ซับไตเติล + เสียงพากย์ เข้าด้วยกันเป็น "ฉากย่อยที่สมบูรณ์"
+            composite_scene = CompositeVideoClip([video_clip, txt_clip]).set_audio(audio_clip)
+            scene_clips.append(composite_scene)
 
-    def assemble(self, audio_path: str, bg_video_path: str, output_path: str = "final_output.mp4"):
-        """ประกอบร่างทุกอย่างเข้าด้วยกันและเรนเดอร์เป็น .mp4"""
-        print(f"🎬 [Tool: VideoAssembler] เริ่มขั้นตอนการประกอบวิดีโอ...")
-        
-        if not os.path.exists(bg_video_path):
-            print(f"❌ ไม่พบไฟล์วิดีโอพื้นหลัง: {bg_video_path}")
-            return
-
-        # 1. โหลดไฟล์เสียงและวิดีโอ
-        audio_clip = AudioFileClip(audio_path)
-        bg_clip = VideoFileClip(bg_video_path)
-
-        # 2. ปรับความยาววิดีโอพื้นหลังให้เท่ากับเสียงพากย์
-        if bg_clip.duration < audio_clip.duration:
-            # ถ้ายาวไม่พอ ให้วนลูป
-            bg_clip = loop(bg_clip, duration=audio_clip.duration)
-        else:
-            # ถ้ายาวเกิน ให้ตัดออก
-            bg_clip = bg_clip.subclip(0, audio_clip.duration)
-
-        # 3. ยัดเสียงพากย์เข้าไปในวิดีโอ
-        bg_clip = bg_clip.set_audio(audio_clip)
-
-        # 4. สร้างซับไตเติล
-        subtitle_segments = self.generate_subtitles_data(audio_path)
-        sub_clips = self.create_subtitle_clips(subtitle_segments, bg_clip.size)
-
-        # 5. ซ้อนซับไตเติลลงบนวิดีโอ
-        final_video = CompositeVideoClip([bg_clip] + sub_clips)
-
-        # 6. เรนเดอร์ไฟล์วิดีโอ
-        print(f"🚀 กำลังเรนเดอร์วิดีโอไปยัง: {output_path}")
+        # 6. นำทุกฉากย่อยที่ฝังซับเรียบร้อยแล้วมาต่อชนกันรวดเดียวจบ
+        print(f"🚀 กำลังเรนเดอร์วิดีโอตัวเต็มรวดเดียวจบ...")
+        final_video = concatenate_videoclips(scene_clips, method="compose")
         final_video.write_videofile(
             output_path, 
             fps=30, 
             codec="libx264", 
-            audio_codec="aac",
-            preset="ultrafast", 
+            audio_codec="aac", 
+            preset="ultrafast",
             threads=4
         )
-        print(f"✅ ประกอบวิดีโอเสร็จสมบูรณ์! ไฟล์อยู่ที่: {output_path}")
+        print(f"✅ บอทสร้างวิดีโอ TikTok เสร็จสิ้น! ผลลัพธ์อยู่ที่: {output_path}")

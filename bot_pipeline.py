@@ -2,14 +2,13 @@ import requests
 from bs4 import BeautifulSoup
 import edge_tts
 import asyncio
-import re
 import sys
-from langchain_core.prompts import ChatPromptTemplate
-# นำเข้า LLMFactory จากไฟล์ที่มีอยู่ในโปรเจกต์
-from core.llm_factory import LLMFactory
 from core.script_tools import ScriptGeneratorTool, VoiceOptimizerTool, NewsSummarizerTool
-from core.video_assembler import VideoAssemblerTool
 from pythainlp.tokenize import sent_tokenize
+import os
+import shutil
+from core.comfy_client import ComfyClient # เพิ่มตัวเชื่อมต่อ Local
+from core.video_assembler import VideoAssemblerTool # เวอร์ชันอัปเกรดแนวตั้ง
 
 # ตั้งค่า encoding ของ stdout/stderr ให้รองรับ UTF-8 เพื่อป้องกันข้อผิดพลาดเวลาแสดงผลอีโมจิใน Windows
 sys.stdout.reconfigure(encoding='utf-8')
@@ -93,6 +92,9 @@ async def main():
     # script_tool = ScriptGeneratorTool(provider="google", model_name="gemini-3.5-flash")
     # voice_tool = VoiceOptimizerTool(provider="google", model_name="gemini-3.5-flash")
     # summarizer = NewsSummarizerTool(provider="google", model_name="gemini-3.5-flash")
+
+    comfy = ComfyClient() # เรียกใช้เครื่องผลิตภาพ Local
+    assembler = VideoAssemblerTool() # เรียกใช้เครื่องตัดต่อ
     
     clean_text = summarizer.summarize(news_content)
     script_data = script_tool.generate_plan(clean_text)
@@ -118,6 +120,52 @@ async def main():
         # --- Step 3: ส่งไปสร้างเสียงพากย์จริง ---
         # ตรงนี้ใช้ optimized_voice ส่งเข้า Edge TTS
         await generate_voice(structured_script, "final_voice.mp3")
+    
+    # โฟลเดอร์เก็บ Asset ชั่วคราวเพื่อเอาไปมัดรวมกัน
+    os.makedirs("assets_output", exist_ok=True)
+    scenes_production_list = []
+
+    CORE_CHARACTER_PROMPT = "A highly realistic yet irresistibly adorable orange tabby cat cyborg character, designed as a lovable futuristic mascot. The cat has incredibly fluffy, soft, voluminous fur with rich orange tabby stripes, realistic individual hairs, silky texture, and subtle white accents around the muzzle and chest. Its fur appears touchably soft with ultra-realistic grooming and natural flow. Talking and acting smile"
+
+    print("\n🔄 [Pipeline] เริ่มวิ่ง Loop ออโตเมชันรายฉากย่อย...")
+    for idx, scene in enumerate(script_data.get("scenes", [])):
+        scene_num = scene.get('scene_number', idx + 1)
+        print(f"\n🎬 --- ลุยงานฉากย่อยที่ {scene_num} ---")
+        
+        # A. ดึงบทพูดและสั่งปรับแต่งคำทับศัพท์สำหรับ TTS
+        raw_voice = scene.get('voice_script', '')
+        optimized_voice = voice_tool.optimize_for_tts(raw_voice)
+        
+        # เจนไฟล์เสียงพากย์เฉพาะฉากนี้
+        scene_audio_path = f"assets_output/voice_scene_{scene_num}.mp3"
+        communicate = edge_tts.Communicate(text=optimized_voice, voice="th-TH-NiwatNeural", rate="+5%", pitch="+5Hz")
+        await communicate.save(scene_audio_path)
+
+        # B. ดึงบทภาพ (Visual Instruction) มาผสมสูตรมัดรวมส่งหา ComfyUI Node 3
+        visual_instruction = scene.get('visual_instruction', '')
+        final_image_prompt = f"{CORE_CHARACTER_PROMPT}, {visual_instruction}"
+        
+        # สั่งข้ามเครื่องไปกระตุ้น ComfyUI ให้ทำงานเบื้องหลัง
+        comfy_image_file = comfy.generate_image(
+            action_prompt=final_image_prompt, 
+            workflow_path="workflow_api.json", 
+            node_id="3"
+        )
+        
+        # คัดลอกรูปเก็บเข้าคลัง Asset ของฉากนี้
+        local_image_path = f"assets_output/image_scene_{scene_num}.png"
+        shutil.copy(comfy_image_file, local_image_path)
+        
+        # จัดชุดข้อมูลใส่ลิสต์เพื่อเตรียมส่งให้ตัวตัดต่อ
+        scenes_production_list.append({
+            "image": local_image_path,
+            "audio": scene_audio_path,
+            "text": raw_voice
+        })
+
+    # 3. ส่งลิสต์เสบียงทั้งหมดไปเข้าเครื่องตัดต่อเรนเดอร์เวอร์ชัน TikTok ท้ายสุด
+    if scenes_production_list:
+        assembler.assemble_from_scenes(scenes_production_list, output_path="tiktok_viral_output.mp4")
 
 if __name__ == "__main__":
     asyncio.run(main())
