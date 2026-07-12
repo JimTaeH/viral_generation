@@ -24,3 +24,7 @@ wheels/
 *.njsproj
 *.sln
 *.swp
+*.png
+*.mp4
+assets_output/*
+temp_process/*

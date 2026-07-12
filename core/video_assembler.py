@@ -47,22 +47,22 @@ class VideoAssemblerTool:
             duration = audio_clip.duration
             
             # 3. สร้างคลิปภาพนิ่งตามความยาวเสียง
-            video_clip = ImageClip(tiktok_frame_path).set_duration(duration)
+            video_clip = ImageClip(tiktok_frame_path).with_duration(duration)
             
             # 4. สร้างกล่องซับไตเติลฝังเข้าไปในฉากนี้โดยตรง (ให้แสดงยาวตั้งแต่ต้นจนจบฉากย่อยนี้)
             txt_clip = TextClip(
                 text=sub_text, 
                 font=self.font_path, 
-                fontsize=55, 
+                font_size=55, 
                 color='yellow', # ตัวหนังสือสีเหลืองยอดฮิตของ TikTok
                 stroke_color='black', 
                 stroke_width=3.0, 
                 method='caption', 
                 size=(1080 - 160, None)
-            ).set_duration(duration).set_position(('center', 1400)) # จัดวางตำแหน่งใต้ภาพตรงกลางพอดี
+            ).with_duration(duration).with_position(('center', 1400)) # จัดวางตำแหน่งใต้ภาพตรงกลางพอดี
             
             # 5. มัดรวม ภาพ + ซับไตเติล + เสียงพากย์ เข้าด้วยกันเป็น "ฉากย่อยที่สมบูรณ์"
-            composite_scene = CompositeVideoClip([video_clip, txt_clip]).set_audio(audio_clip)
+            composite_scene = CompositeVideoClip([video_clip, txt_clip]).with_audio(audio_clip)
             scene_clips.append(composite_scene)
 
         # 6. นำทุกฉากย่อยที่ฝังซับเรียบร้อยแล้วมาต่อชนกันรวดเดียวจบ
