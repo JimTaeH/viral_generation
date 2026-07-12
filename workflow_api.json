@@ -1,7 +1,7 @@
 {
   "1": {
     "inputs": {
-      "ckpt_name": "revAnimated_v2Rebirth.safetensors"
+      "ckpt_name": "realisticVisionV60B1_v60B1VAE.safetensors"
     },
     "class_type": "CheckpointLoaderSimple",
     "_meta": {
@@ -19,9 +19,9 @@
   },
   "3": {
     "inputs": {
-      "text": "",
+      "text": "A highly realistic yet irresistibly adorable orange tabby cat cyborg character, designed as a lovable futuristic mascot. The cat has incredibly fluffy, soft, voluminous fur with rich orange tabby stripes, realistic individual hairs, silky texture, and subtle white accents around the muzzle and chest. Its fur appears touchably soft with ultra-realistic grooming and natural flow. Talking and acting smile",
       "clip": [
-        "1",
+        "25",
         1
       ]
     },
@@ -34,7 +34,7 @@
     "inputs": {
       "text": "low quality, blurry, flat lighting, low resolution, bad anatomy, oversized robot parts, horror, scary, aggressive, evil, dirty fur, extra limbs, extra tails, duplicate body parts, distorted face, deformed paws, text, logo, watermark, cropped, out of frame, oversaturated colors, plastic fur, uncanny face, weapon, armor, battle damage, blood, gore, heavy machinery, full robot body, mechanical monster, expressionless face.",
       "clip": [
-        "1",
+        "25",
         1
       ]
     },
@@ -52,7 +52,7 @@
       "end_at": 0.8,
       "embeds_scaling": "V only",
       "model": [
-        "1",
+        "25",
         0
       ],
       "ipadapter": [
@@ -75,7 +75,7 @@
   },
   "7": {
     "inputs": {
-      "seed": 63014686035723,
+      "seed": 417318908933826,
       "steps": 20,
       "cfg": 8,
       "sampler_name": "euler",
@@ -130,19 +130,6 @@
       "title": "VAE Decode"
     }
   },
-  "10": {
-    "inputs": {
-      "filename_prefix": "meow_borg",
-      "images": [
-        "9",
-        0
-      ]
-    },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
-  },
   "11": {
     "inputs": {
       "ipadapter_file": "ip-adapter_sd15.safetensors"
@@ -159,6 +146,160 @@
     "class_type": "CLIPVisionLoader",
     "_meta": {
       "title": "Load CLIP Vision"
+    }
+  },
+  "13": {
+    "inputs": {
+      "video": "d9.mp4",
+      "force_rate": 0,
+      "custom_width": 0,
+      "custom_height": 0,
+      "frame_load_cap": 0,
+      "start_time": 0,
+      "format": "AnimateDiff"
+    },
+    "class_type": "VHS_LoadVideoFFmpeg",
+    "_meta": {
+      "title": "Load Video FFmpeg (Upload) 🎥🅥🅗🅢"
+    }
+  },
+  "17": {
+    "inputs": {
+      "frame_rate": 8,
+      "loop_count": 0,
+      "filename_prefix": "AnimateDiff",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 19,
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true,
+      "images": [
+        "21",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "18": {
+    "inputs": {
+      "precision": "fp32"
+    },
+    "class_type": "DownloadAndLoadLivePortraitModels",
+    "_meta": {
+      "title": "(Down)Load LivePortraitModels"
+    }
+  },
+  "20": {
+    "inputs": {
+      "lip_zero": false,
+      "lip_zero_threshold": 0.03,
+      "stitching": false,
+      "delta_multiplier": 1,
+      "mismatch_method": "constant",
+      "relative_motion_mode": "relative",
+      "driving_smooth_observation_variance": 0.000003,
+      "pipeline": [
+        "18",
+        0
+      ],
+      "crop_info": [
+        "22",
+        1
+      ],
+      "source_image": [
+        "22",
+        0
+      ],
+      "driving_images": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "LivePortraitProcess",
+    "_meta": {
+      "title": "LivePortrait Process"
+    }
+  },
+  "21": {
+    "inputs": {
+      "source_image": [
+        "9",
+        0
+      ],
+      "cropped_image": [
+        "20",
+        0
+      ],
+      "liveportrait_out": [
+        "20",
+        1
+      ]
+    },
+    "class_type": "LivePortraitComposite",
+    "_meta": {
+      "title": "LivePortrait Composite"
+    }
+  },
+  "22": {
+    "inputs": {
+      "dsize": 512,
+      "scale": 2.3,
+      "vx_ratio": 0,
+      "vy_ratio": -0.125,
+      "face_index": 0,
+      "face_index_order": "large-small",
+      "rotate": true,
+      "pipeline": [
+        "18",
+        0
+      ],
+      "cropper": [
+        "24",
+        0
+      ],
+      "source_image": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "LivePortraitCropper",
+    "_meta": {
+      "title": "LivePortrait Cropper"
+    }
+  },
+  "24": {
+    "inputs": {
+      "onnx_device": "CUDA",
+      "keep_model_loaded": true,
+      "detection_threshold": 0.1
+    },
+    "class_type": "LivePortraitLoadCropper",
+    "_meta": {
+      "title": "LivePortrait Load InsightFaceCropper"
+    }
+  },
+  "25": {
+    "inputs": {
+      "lora_name": "E58AA8E789A9.HT6w.safetensors",
+      "strength_model": 0.5,
+      "strength_clip": 1,
+      "model": [
+        "1",
+        0
+      ],
+      "clip": [
+        "1",
+        1
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load LoRA (Model and CLIP)"
     }
   }
 }

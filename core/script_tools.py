@@ -10,15 +10,18 @@ from core.llm_factory import LLMFactory
 class VideoScene(BaseModel):
     scene_number: int = Field(description="ลำดับฉาก (เช่น 1, 2, 3)")
     
-    visual_instruction: str = Field(description="""บทภาพแบบละเอียด: ระบุภาพที่จะปรากฏบนจอ เช่น 
-    - ฟุตเทจหลัก (เช่น 'ภาพวงจรประมวลผลเซิร์ฟเวอร์แบบ 3D') 
-    - มุมกล้อง (เช่น 'ซูมเข้าใกล้', 'มุมกว้าง')
-    - ข้อความ Pop-up บนจอ (เช่น 'ขึ้น Text ตัวใหญ่คำว่า "AI แสนล้าน!"')""")
+    visual_instruction: str = Field(description="""[MUST BE IN ENGLISH] 
+    Detailed visual prompt for the background or main elements, strictly written in English. 
+    Optimized for Stable Diffusion / Image Gen models. Use descriptive keyword tags separated by commas.
+    Include camera angles, lighting conditions, and main subject details.
+    Example: 'cyberpunk server room, glowing neon circuits, cinematic lighting, 8k resolution, close-up shot, depth of field'""")
     
-    character_action: str = Field(description="""ท่าทางการกระทำของ 'เหมียวบ็อก': 
-    ระบุอนิเมชันหรือท่าทางคร่าวๆ ของตัวละครในฉากนี้ เช่น 'กอดอกทำหน้าขิง', 'ชี้อุ้งเท้าไปที่หน้าจอ', 'ตา LED กะพริบสีแดงด้วยความตกใจ', หรือ 'เอียงคอสงสัย'""")
+    character_action: str = Field(description="""[MUST BE IN ENGLISH] 
+    Character specific expression and action tags for 'MeowBox' (the cyborg cat), strictly written in English.
+    Optimized for LivePortrait driving nodes. Describe facial expressions, movements, or posture changes.
+    Example: 'smirking confidently, crossing paws, LED eyes blinking red with surprise, tilting head curiously'""")
     
-    voice_script: str = Field(description="""บทพูดของเหมียวบ็อก: 
+    voice_script: str = Field(description="""[MUST BE IN THAI] บทพูดของเหมียวบ็อก: 
     - สไตล์: เป็นภาษาพูด (Spoken Language) เหมือนเพื่อนเล่าเรื่องเทคโนโลยีให้ฟัง ห้ามใช้ภาษาเขียนหรือทางการ
     - คาแรคเตอร์: ใส่คำสร้อยอย่างเป็นธรรมชาติ กระจายตามประโยค
     - **ห้ามลืม** กฎสำหรับฉากสุดท้าย: ฉากสุดท้ายต้องปิดท้ายด้วยประโยคชวนให้คิด และตามด้วย 'อย่าลืมกด ติดตาม เหมียวบ็อกด้วยล่ะ เมี๊ยยว!'

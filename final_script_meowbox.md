@@ -1,33 +1,41 @@
-# 🎥 โปรเจกต์คลิป: Amazon Leo ปล่อยดาวเทียมเพิ่มอีก 29 ดวง! ใกล้ให้เน็ตดาวเทียมฟรีในบ้านเราแล้วววว
+# 🎥 โปรเจกต์คลิป: Pokémon GO ครบรอบ 10 ปี: จากมุก April Fools สู่อาณาจักรที่เปลี่ยนโลก!
 
 📅 สร้างเมื่อ: เหมียวบ็อกจัดการให้งับ
 
 ---
 
 ## 🎬 ฉากที่ 1
-- **👁️ บทภาพ (Visual):** - ภาพฟุตเทจจรวด Atlas V ลอยขึ้นฟ้า พร้อมควันดำพุ่งสูง
-- มุมกล้องซูมเข้าที่ตัวจรวดขณะตัดเชือก
-- ข้อความ Pop-up ลอยขึ้น: "29 ดวง! ปล่อยเพิ่มอีก!"
-- **🐈 ท่าทาง (Action):** ยืนตัวตรง หางสะบัดเบาๆ พร้อมชี้อุ้งเท้าไปที่จรวดที่พุ่งขึ้นฟ้า ตา LED สว่างเป็นสีฟ้าด้วยความตื่นเต้น
-- **🗣️ บทพูด (Voice):** เห็นไหมว่าจรวด Atlas V ตัวเก่งเพิ่งปล่อยดาวเทียม Amazon Leo อีก 29 ดวง! นี่มันเที่ยวบินสุดท้ายของมันด้วยนะ หลังจากนี้ก็ต้องเปลี่ยนเป็น Vulcan ที่ใหญ่กว่า ขนได้มากกว่า แถมเร็วกว่าด้วย!
+- **👁️ บทภาพ (Visual):** retro 8-bit style computer screen, fake news headline 'Pokémon Escape Earth', glitching pixels, nostalgic filter, wide-angle shot, dim blue lighting
+- **🐈 ท่าทาง (Action):** tilting head with curiosity, one ear twitching, LED eyes glowing faintly yellow, paw tapping screen mockingly
+- **🗣️ บทพูด (Voice):** นุด! ปี 2014 กูเกิลเล่นมุก April Fools ว่า 'โปเกมอนหลุดโลก' ฮ่าๆ ใครจะไปคิดว่า...มุกนั่นจะกลายเป็นจุดเริ่มต้นของอาณาจักรที่เปลี่ยนโลกจริงๆ ได้!
 
 ## 🎬 ฉากที่ 2
-- **👁️ บทภาพ (Visual):** - ภาพ 3D แสดงดาวเทียมลอยอยู่ในวงโคจรต่ำ (LEO)
-- ตัวเลข 396 โผล่ขึ้นกลางจอ พร้อมเส้นสายเชื่อมกับโลก
-- ข้อความ Pop-up: "รวมแล้ว 396 ดวง!"
-- **🐈 ท่าทาง (Action):** ก้มตัวมองจอ แล้วเงยหน้าขึ้นมองไกลๆ พร้อมเอียงหัวเล็กน้อยด้วยความประทับใจ
-- **🗣️ บทพูด (Voice):** ตอนนี้ Amazon Leo มีดาวเทียมอยู่ในวงโคจรแล้ว 396 ดวง! นี่มันเทียบได้กับการเอาแมวทั้งเมืองหนึ่งมาวางไว้บนฟ้าเลยนะ นุด!
+- **👁️ บทภาพ (Visual):** modern smartphone screen showing Pokémon GO interface, real-world park background with players walking around, AR Pikachu floating mid-air, golden hour lighting, medium close-up shot
+- **🐈 ท่าทาง (Action):** paw swiping air like a touchscreen, eyes sparkling with excitement, tail flicking rapidly, LED lights pulsing green
+- **🗣️ บทพูด (Voice):** ปี 2016 โปเกมอน GO เปิดตัว! ใช้เทคโนโลยี AR ผสม GPS แบบเรียลไทม์ จับโปเกมอนได้ที่สวนสาธารณะ หน้าร้านค้า หรือแม้แต่หน้าบ้านนุดก็ตาม! ดาวน์โหลดเกิน 500 ล้านครั้งใน 2 เดือน! นี่ไม่ใช่เกม นี่คือวัฒนธรรม!
 
 ## 🎬 ฉากที่ 3
-- **👁️ บทภาพ (Visual):** - แผนภาพเปรียบเทียบจำนวนดาวเทียม: Amazon Leo (396), SpaceX Starlink (10,000+), เป้าหมาย Amazon (3,000+), ขออนุญาตเพิ่ม (7,000+)
-- ข้อความ Pop-up: "Starlink ยังนำอยู่… แต่ Amazon กำลังเร่งแซง!"
-- **🐈 ท่าทาง (Action):** กอดอก ทำหน้าขิง แล้วชี้อุ้งเท้าไปที่ตัวเลข Starlink ด้วยท่าทางขำๆ
-- **🗣️ บทพูด (Voice):** แม้ยังน้อยกว่า Starlink ที่มีมากกว่า 10,000 ดวง แต่ Amazon Leo ไม่ยอมแพ้! เป้าหมายคือ 3,000 ดวง แล้วขออนุญาตเพิ่มอีก 7,000 ดวง! นี่มันไม่ใช่แค่แข่งกัน… มันคือสงครามดาวเทียมเลยนะ นุด!
+- **👁️ บทภาพ (Visual):** split-screen: left side shows Ed Wu smiling at a desk, right side shows elderly man walking through forest with phone, sunlight filtering through trees, soft focus, warm tones
+- **🐈 ท่าทาง (Action):** leaning forward with intense gaze, ears perked up, one paw gesturing dramatically, LED eyes flashing thoughtful blue
+- **🗣️ บทพูด (Voice):** Ed Wu ผู้ก่อตั้ง Niantic เล่าเลยว่า โปเกมอน GO เริ่มจากไอเดียตลก แต่ทีมเห็นศักยภาพ! พ่อของเขาเริ่มเดินวันละหลายกิโล จนระดับน้ำตาลในเลือดดีขึ้น! นี่ไม่ใช่แค่เกม...นี่คือเครื่องมือเปลี่ยนชีวิต!
 
 ## 🎬 ฉากที่ 4
-- **👁️ บทภาพ (Visual):** - ภาพลวงตาของบ้านเรือนในพื้นที่ชนบท แล้วมีสัญญาณเน็ตดาวเทียมปรากฏขึ้น
-- ข้อความ Pop-up: "เริ่มทดสอบให้ลูกค้าองค์กร 2025"
-- ข้อความ Pop-up ต่อ: "เริ่มให้บริการทั่วไป 2026"
-- **🐈 ท่าทาง (Action):** เดินไปมาหน้าจอ แล้วหยุด ชี้อุ้งเท้าไปที่แผนที่ พร้อมกระพริบตา LED สองครั้งอย่างลึกลับ
-- **🗣️ บทพูด (Voice):** ตอนนี้ Amazon Leo เริ่มทดสอบให้ลูกค้าองค์กรใช้ได้แล้วในปี 2025 และเตรียมเปิดให้ลูกค้าทั่วไปในพื้นที่เฉพาะก่อน คาดว่าจะเริ่มใช้จริงได้ภายในปี 2026 นี่มันไม่ใช่แค่เน็ต… มันคือ ‘แสงสว่างจากฟ้า’ สำหรับพื้นที่ห่างไกลเลยนะ!
+- **👁️ บทภาพ (Visual):** glitchy montage: failed game logos fading out (Harry Potter: Wizards Unite, NBA All-World, Marvel's Avengers), dark background, slow zoom on a single glowing Poké Ball
+- **🐈 ท่าทาง (Action):** sighing deeply, sitting down with paw over face, LED eyes dimming slightly, tail drooping
+- **🗣️ บทพูด (Voice):** แต่ทีนี้...ความสำเร็จของโปเกมอน GO กลายเป็นภาระ! เกมแนวเดียวกันหลายเกมล้มเหลว ทั้ง Harry Potter, NBA, Marvel...ล้วนปิดตัวหรือยกเลิก เพราะทำ 'โปเกมอน GO อีกเวอร์ชัน' ไม่พอ!
+
+## 🎬 ฉากที่ 5
+- **👁️ บทภาพ (Visual):** futuristic smartphone hovering above mountain peak, satellite signal beams connecting from space, glowing trail of players walking through dense jungle, ultra-wide landscape shot, cinematic lighting
+- **🐈 ท่าทาง (Action):** standing tall with paw pointing upward, eyes blazing bright white, tail held high like a flag, LED lights spinning in rainbow swirls
+- **🗣️ บทพูด (Voice):** แต่ตอนนี้...เทคโนโลยีดาวเทียมอย่าง Starlink จะพาโปเกมอน GO ไปถึงป่าลึก ภูเขา หรืออุทยานแห่งชาติที่ไม่มีสัญญาณ! ข้อมูลการเคลื่อนไหวของผู้เล่น อาจกลายเป็นข้อมูลวิจัยสิ่งแวดล้อมในอนาคต!
+
+## 🎬 ฉากที่ 6
+- **👁️ บทภาพ (Visual):** Scopely logo glowing softly, Monster Hunter Now and Pikmin Bloom app icons floating beside it, peaceful garden scene with players tending to virtual plants, morning light, shallow depth of field
+- **🐈 ท่าทาง (Action):** paw gently tapping two floating app icons, giving a knowing wink, ears perked up proudly, LED eyes shining warmly
+- **🗣️ บทพูด (Voice):** ปัจจุบัน Scopely ถือเกม AR สองเกมจาก Niantic: Monster Hunter Now และ Pikmin Bloom ที่พิเศษสุดคือ...ผู้เล่นยังใช้งานต่อเนื่อง! พิกมินบลูมอาจโตเป็นเกมระดับโลกได้!
+
+## 🎬 ฉากที่ 7
+- **👁️ บทภาพ (Visual):** cybernetic cat silhouette standing on a bridge between digital world and real world, glowing pathways leading into forests and cities, starry sky above, wide-angle epic shot
+- **🐈 ท่าทาง (Action):** spreading paws wide like a conductor, head tilted back with triumphant smile, LED eyes blazing gold, tail sweeping across the horizon
+- **🗣️ บทพูด (Voice):** โปเกมอน GO ไม่ใช่แค่เกม...มันคือสะพานเชื่อมโลกเสมือนกับโลกความเป็นจริง! ในอีก 10 ปีข้างหน้า อาจช่วยให้มนุษย์ 'กลับมาเดิน' อย่างมีความหมายอีกครั้ง! อย่าลืมกดติดตาม เหมียวบ็อกด้วยล่ะ เมี๊ยว!
 

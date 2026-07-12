@@ -9,6 +9,7 @@ import os
 import shutil
 from core.comfy_client import ComfyClient # เพิ่มตัวเชื่อมต่อ Local
 from core.video_assembler import VideoAssemblerTool # เวอร์ชันอัปเกรดแนวตั้ง
+import time
 
 # ตั้งค่า encoding ของ stdout/stderr ให้รองรับ UTF-8 เพื่อป้องกันข้อผิดพลาดเวลาแสดงผลอีโมจิใน Windows
 sys.stdout.reconfigure(encoding='utf-8')
@@ -79,7 +80,7 @@ async def generate_voice(script_text, output_filename="output_voice.mp3"):
 # Main Execution
 # ==========================================
 async def main():
-    test_url = "https://www.blognone.com/node/151057"
+    test_url = "https://www.blognone.com/node/151127"
     news_content = scrape_news(test_url)
     if not news_content:
         return
@@ -125,7 +126,14 @@ async def main():
     os.makedirs("assets_output", exist_ok=True)
     scenes_production_list = []
 
-    CORE_CHARACTER_PROMPT = "A highly realistic yet irresistibly adorable orange tabby cat cyborg character, designed as a lovable futuristic mascot. The cat has incredibly fluffy, soft, voluminous fur with rich orange tabby stripes, realistic individual hairs, silky texture, and subtle white accents around the muzzle and chest. Its fur appears touchably soft with ultra-realistic grooming and natural flow. Talking and acting smile"
+    CORE_CHARACTER_PROMPT = (
+    "A highly realistic yet irresistibly adorable orange tabby cat cyborg character, "
+    "designed as a lovable futuristic mascot. The cat has incredibly fluffy, soft, "
+    "voluminous fur with rich orange tabby stripes, realistic individual hairs, silky texture, "
+    "and subtle white accents around the muzzle and chest. Its fur appears touchably soft with "
+    "ultra-realistic grooming and natural flow. Talking and acting smile, "
+    "front view, close-up portrait shot, looking at camera, distinct facial features, centered composition"
+)
 
     print("\n🔄 [Pipeline] เริ่มวิ่ง Loop ออโตเมชันรายฉากย่อย...")
     for idx, scene in enumerate(script_data.get("scenes", [])):
@@ -144,21 +152,37 @@ async def main():
         # B. ดึงบทภาพ (Visual Instruction) มาผสมสูตรมัดรวมส่งหา ComfyUI Node 3
         visual_instruction = scene.get('visual_instruction', '')
         final_image_prompt = f"{CORE_CHARACTER_PROMPT}, {visual_instruction}"
+        max_retries = 3
+        video_success = False
+        comfy_video_file = None
         
-        # สั่งข้ามเครื่องไปกระตุ้น ComfyUI ให้ทำงานเบื้องหลัง
-        comfy_image_file = comfy.generate_image(
-            action_prompt=final_image_prompt, 
-            workflow_path="workflow_api.json", 
-            node_id="3"
-        )
+        for attempt in range(max_retries):
+            print(f"🔄 กำลังพยายามเจนวิดีโอฉากที่ {scene_num} (รอบที่ {attempt + 1}/{max_retries})...")
+            
+            comfy_video_file = comfy.generate_video(
+                action_prompt=final_image_prompt, 
+                workflow_path="workflow_api.json", 
+                node_id="3",
+                video_node_id="17"
+            )
+            
+            if comfy_video_file != "FAILED_FACE_NOT_FOUND":
+                video_success = True
+                break
+                
+            print("🎲 ภาพสุ่มรอบนี้มุมกล้องไม่ได้องศาตรวจจับหน้าตรง สั่งดึง Seed ใหม่เพื่อสุ่มภาพโครงสร้างใหม่...")
+            time.sleep(2) # พักเบรกสั้นๆ ก่อนเคลียร์คิวถัดไป
+
+        if not video_success:
+            raise Exception(f"💥 Pipeline ล้มเหลว: ฉากที่ {scene_num} เจนภาพสุ่ม 3 รอบแล้วตรวจไม่พบโครงสร้างใบหน้าตรงเลย")
+            
+        # คัดลอกวิดีโอย่อยเก็บเข้าคลัง Asset (เมื่อรันรอบที่สมบูรณ์สำเร็จ)
+        local_video_path = f"assets_output/video_scene_{scene_num}.mp4"
+        shutil.copy(comfy_video_file, local_video_path)
         
-        # คัดลอกรูปเก็บเข้าคลัง Asset ของฉากนี้
-        local_image_path = f"assets_output/image_scene_{scene_num}.png"
-        shutil.copy(comfy_image_file, local_image_path)
-        
-        # จัดชุดข้อมูลใส่ลิสต์เพื่อเตรียมส่งให้ตัวตัดต่อ
+        # จัดชุดข้อมูลใส่ลิสต์เพื่อเตรียมส่งให้ตัวตัดต่อมัดรวมฉากย่อย
         scenes_production_list.append({
-            "image": local_image_path,
+            "video": local_video_path,
             "audio": scene_audio_path,
             "text": raw_voice
         })
